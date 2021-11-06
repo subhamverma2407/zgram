@@ -10,7 +10,9 @@ import like from "../../assets/like.PNG";
 const Header = () => {
   return (
     <Nav>
-      <Logo src={logo}></Logo>
+      <Logo>
+        <Icon src={logo}></Icon>
+      </Logo>
       <Search>
         <SearchInput placeholder="Search"></SearchInput>
       </Search>
@@ -25,9 +27,17 @@ const Header = () => {
   );
 };
 
-const Nav = styled.div`
+const Search = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  align-items: center;
+`;
+const Nav = styled.div`
+  ${Search} {
+    display: none;
+  }
+  display: flex;
+  justify-content: space-between;
   position: fixed;
   width: 100%;
   z-index: 3;
@@ -35,24 +45,43 @@ const Nav = styled.div`
   left: 0;
   background-color: white;
   border-bottom: 1px solid rgba(219, 219, 219, 1);
-  padding: 0.5rem 10rem 0.5rem 10rem;
-`;
-const Logo = styled.img`
-  width: 6rem;
-  height: 2rem;
-  object-fit: contain;
-`;
+  padding: 0.5rem 2rem 0.5rem 2rem;
+  @media (min-width: 600px) {
+    ${Search} {
+      display: block;
+    }
+    padding: 0.5rem 2rem 0.5rem 2rem;
+    justify-content: space-around;
+  }
 
-const Search = styled.div`
+  @media (min-width: 800px) {
+    padding: 0.5rem 7rem 0.5rem 7rem;
+  }
+`;
+const Logo = styled.div`
+  &:hover {
+    cursor: pointer;
+  }
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const Icon = styled.img`
+  display: inline-block;
+  padding-top: 0.2rem;
+  height: 2rem;
+  object-fit: contain;
 `;
 
 const SearchInput = styled.input`
   &:hover,
   :focus {
     outline: none;
+  }
+
+  &:focus {
+    padding: 0.8rem 6rem 0.8rem 1.5rem;
   }
   padding: 0.8rem 6rem 0.8rem 6rem;
   width: 15rem;
@@ -69,6 +98,9 @@ const Menu = styled.div`
 `;
 
 const MenuItem = styled.img`
+  &:hover {
+    cursor: pointer;
+  }
   width: 1.7rem;
   height: 1.7rem;
   padding: 0.2rem;
