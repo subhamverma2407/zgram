@@ -1,6 +1,14 @@
 * {
   margin: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.Toastify__toast {
+  min-height: 1rem !important;
+}
+.Toastify__toast > div {
+  padding: 0;
 }
 
 html {
