@@ -1,17 +1,16 @@
-import React, { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import styled from "styled-components/macro";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/zgram.png";
+import { useEffect } from "react";
 
 function SignIn() {
   const { user, signInWithGoogle } = useAuth();
 
-  const signInHandler = async () => {
-    await signInWithGoogle();
-  };
-
   const nav = useNavigate();
+  const signInHandler = () => {
+    signInWithGoogle();
+  };
 
   useEffect(() => {
     if (user) {

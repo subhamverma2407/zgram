@@ -6,7 +6,6 @@ import {
 } from "@firebase/auth";
 import { useEffect, useContext, createContext, useState } from "react";
 import { auth } from "../firebaseConfig";
-import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -14,7 +13,7 @@ export const useAuth = () => useContext(AuthContext);
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const nav = useNavigate();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (fetchedUser) => {
       if (fetchedUser) {
@@ -26,7 +25,7 @@ const AuthContextProvider = ({ children }) => {
     return () => {
       unsubscribe();
     };
-  }, [nav]);
+  }, []);
 
   const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();

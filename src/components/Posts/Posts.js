@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import Post from "./Post";
 import { collection, onSnapshot, orderBy, query } from "@firebase/firestore";
 import { db } from "../../firebaseConfig";
+import moment from "moment";
 
 // import faker from "faker";
 
 const Posts = () => {
-  // const [posts, setPosts] = useState(null);
-
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -18,45 +17,26 @@ const Posts = () => {
       }
     );
     return unsubscribe;
-  }, []);
-
-  // postss.map((post) =>
-  //   console.log({
-  //     id: post.id,
-  //     image: post.data().image,
-  //     avatar: post.data().profilepic,
-  //     username: post.data().username,
-  //     caption: post.data().caption,
-  //   })
-  // );
-  // useEffect(() => {
-  //   const data = [...Array(10)].map(() => {
-  //     return {
-  //       id: faker.datatype.uuid(),
-  //       avatar: faker.image.avatar(),
-  //       image: `${faker.image.unsplash.imageUrl()}?random=${
-  //         faker.datatype.number() * 1000
-  //       }`,
-  //       username: faker.fake("{{name.firstName}}"),
-  //       caption: faker.fake("{{lorem.lines}}"),
-  //       likes: faker.datatype.number(),
-  //     };
-  //   });
-  //   setPosts(data);
-  // }, []);
+  }, [setPosts]);
 
   return (
     <>
-      {posts?.map((post) => (
-        <Post
-          key={post.id}
-          id={post.id}
-          avatar={post.data().profilepic}
-          image={post.data().image}
-          username={post.data().username}
-          caption={post.data().caption}
-        ></Post>
-      ))}
+      {posts?.map((post) => {
+        const formattedTimeStamp = moment(post.data().timestamp?.toDate()).from(
+          new Date()
+        ); //Moment Js Formatter
+        return (
+          <Post
+            key={post.id}
+            id={post.id}
+            avatar={post.data().profilepic}
+            image={post.data().image}
+            username={post.data().username}
+            caption={post.data().caption}
+            timestamp={formattedTimeStamp}
+          ></Post>
+        );
+      })}
     </>
   );
 };

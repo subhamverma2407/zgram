@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components/macro";
 import option from "../../assets/option.PNG";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import NearMeOutlinedIcon from "@mui/icons-material/NearMeOutlined";
+import SentimentSatisfiedOutlinedIcon from "@mui/icons-material/SentimentSatisfiedOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import UserAvatar from "../UserAvatar";
+import moment from "moment";
+import Comment from "./Comment";
+
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
   setDoc,
 } from "@firebase/firestore";
 import { db } from "../../firebaseConfig";
@@ -21,6 +29,43 @@ const Post = (props) => {
   const { user } = useAuth();
   const [hasLiked, setHasLiked] = useState();
   const [likes, setLikes] = useState([]);
+  const [comment, setComment] = useState("");
+  const commentRef = useRef();
+  const [comments, setComments] = useState([]);
+
+  // Fetching comment from input field
+  const fetchComment = (e) => {
+    setComment(e.target.value);
+  };
+
+  //Fetching Comment from server
+
+  useEffect(() => {
+    onSnapshot(
+      query(
+        collection(db, "posts", props.id, "comments"),
+        orderBy("timestamp", "desc")
+      ),
+      (snapshot) => {
+        setComments(snapshot.docs);
+      }
+    );
+  }, [setComments, props.id]);
+
+  // Posting Comment
+
+  const addComment = async () => {
+    await addDoc(collection(db, "posts", props.id, "comments"), {
+      username: user.displayName,
+      comment: comment,
+      timestamp: serverTimestamp(),
+    }).then(() => {
+      setComment("");
+    });
+  };
+
+  // logic of liking the post and delete if already liked
+
   const like = async () => {
     if (hasLiked) {
       await deleteDoc(doc(db, "posts", props.id, "likes", user?.uid));
@@ -31,6 +76,8 @@ const Post = (props) => {
     }
   };
 
+  //Fetching Posts
+
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "posts", props.id, "likes"),
@@ -39,7 +86,9 @@ const Post = (props) => {
       }
     );
     return unsubscribe;
-  }, [props.id]);
+  }, [setLikes, props.id]);
+
+  //Logic for setting likes
 
   useEffect(() => {
     setHasLiked(likes.findIndex((item) => item.id === user?.uid) !== -1);
@@ -73,7 +122,9 @@ const Post = (props) => {
               )}
             </PostActionItem>
             <PostActionItem>
-              <ChatOutlinedIcon></ChatOutlinedIcon>
+              <ChatOutlinedIcon
+                onClick={() => commentRef.current.focus()}
+              ></ChatOutlinedIcon>
             </PostActionItem>
             <PostActionItem>
               <NearMeOutlinedIcon></NearMeOutlinedIcon>
@@ -88,18 +139,47 @@ const Post = (props) => {
       ) : null}
       <PostDetails>
         <PostLikes>
-          {likes.length}
-          <span style={{ marginLeft: "0.3rem" }}>Likes</span>
+          <span>{likes.length}</span>
+          <span style={{ marginLeft: "0.3rem" }}>likes</span>
         </PostLikes>
+
+        <TimeStamp>{props.timestamp}</TimeStamp>
         <PostCaption>
           <Caption>
             <User>{props.username}</User>
             {props.caption}
           </Caption>
         </PostCaption>
-        <PostComments></PostComments>
-        <Comment></Comment>
+        <PostComments>
+          {comments.length > 0 &&
+            comments.map((comment) => {
+              const formattedTimeStamp = moment(
+                comment.data().timestamp?.toDate()
+              ).from(new Date()); //Moment Js Formatter
+              return (
+                <Comment
+                  key={comment.id}
+                  username={comment.data().username}
+                  comment={comment.data().comment}
+                  timestamp={formattedTimeStamp}
+                ></Comment>
+              );
+            })}
+        </PostComments>
       </PostDetails>
+      <CommentContainer>
+        <CommentIcon></CommentIcon>
+        <CommentInput
+          ref={commentRef}
+          value={comment}
+          onChange={(e) => fetchComment(e)}
+          placeholder="Add Comment"
+        ></CommentInput>
+
+        <CommentPost onClick={addComment} disabled={comment.trim() === ""}>
+          Post
+        </CommentPost>
+      </CommentContainer>
     </PostContainer>
   );
 };
@@ -199,30 +279,28 @@ const PostActionItem = styled.div`
 const PostDetails = styled.div`
   ${User} {
     margin-left: 0;
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
   display: flex;
   flex-direction: column;
-  padding: 0 0.8rem;
+  padding: 0 0.8rem 1rem 1rem;
   width: 100%;
 `;
 
 const PostLikes = styled.div`
   & > span {
-    font-weight: normal;
-    font-size: 0.9rem;
+    font-weight: bold;
+    font-size: 0.8rem;
   }
   display: flex;
   font-weight: bold;
   width: 100%;
   justify-content: flex-start;
   align-items: center;
-  margin-left: 0.3rem;
-  padding: 0.1rem;
 `;
 
 const PostCaption = styled.div`
-  padding: 0.3rem 0;
+  padding: 0.2rem 0 0.2rem 0;
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
@@ -235,6 +313,16 @@ const Caption = styled.div`
     /* padding-bottom: 0.3rem; */
     font-size: 0.8rem;
   }
+`;
+
+const TimeStamp = styled.div`
+  display: flex;
+  justify-items: flex-start;
+  align-items: center;
+  font-size: 0.65rem;
+  padding: 0.5rem 0;
+  color: #757575;
+  text-transform: uppercase;
 `;
 
 const HeartIcon = styled(FavoriteIcon)`
@@ -261,8 +349,47 @@ const HeartIcon = styled(FavoriteIcon)`
   }
 `;
 
-const PostComments = styled.div``;
+const PostComments = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
 
-const Comment = styled.div``;
+const CommentContainer = styled.div`
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem 0.5rem 0;
+  border-top: 1px solid rgba(219, 219, 219, 1);
+`;
+
+const CommentIcon = styled(SentimentSatisfiedOutlinedIcon)`
+  margin: 0.5rem;
+`;
+const CommentInput = styled.input`
+  &:focus ::placeholder {
+    color: black;
+  }
+  flex-grow: 1;
+  outline: none;
+  border: none;
+  display: flex;
+  width: 0;
+`;
+const CommentPost = styled.button`
+  :disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  font-size: 0.8rem;
+  font-weight: bold;
+  outline: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #0095f6;
+`;
 
 export default Post;
