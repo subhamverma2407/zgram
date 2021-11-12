@@ -167,19 +167,21 @@ const Post = (props) => {
             })}
         </PostComments>
       </PostDetails>
-      <CommentContainer>
-        <CommentIcon></CommentIcon>
-        <CommentInput
-          ref={commentRef}
-          value={comment}
-          onChange={(e) => fetchComment(e)}
-          placeholder="Add Comment"
-        ></CommentInput>
+      {user && (
+        <CommentContainer>
+          <CommentIcon></CommentIcon>
+          <CommentInput
+            ref={commentRef}
+            value={comment}
+            onChange={(e) => fetchComment(e)}
+            placeholder="Add Comment"
+          ></CommentInput>
 
-        <CommentPost onClick={addComment} disabled={comment.trim() === ""}>
-          Post
-        </CommentPost>
-      </CommentContainer>
+          <CommentPost onClick={addComment} disabled={comment.trim() === ""}>
+            Post
+          </CommentPost>
+        </CommentContainer>
+      )}
     </PostContainer>
   );
 };

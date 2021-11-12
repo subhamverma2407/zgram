@@ -6,7 +6,7 @@ const UserAvatar = (props) => {
   return (
     <div>
       <Wrapper>
-        <AvatarIcon sx={{ width: 30, height: 30 }} src={props.photoURL}>
+        <AvatarIcon sx={{ width: 25, height: 25 }} src={props.photoURL}>
           {props.displayName[0]}
         </AvatarIcon>
       </Wrapper>

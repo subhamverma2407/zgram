@@ -56,24 +56,24 @@ const Header = () => {
             <MenuItem>
               <NavigationOutlinedIcon
                 onClick={notImplemented}
-                sx={{ width: 30, height: 30 }}
+                sx={{ width: 25, height: 25 }}
               ></NavigationOutlinedIcon>
             </MenuItem>
             <MenuItem>
               <StyledLink to="/addpost">
                 <AddBoxOutlinedIcon
-                  sx={{ width: 30, height: 30 }}
+                  sx={{ width: 25, height: 25 }}
                 ></AddBoxOutlinedIcon>
               </StyledLink>
             </MenuItem>
             <MenuItem>
               <ExploreOutlinedIcon
                 onClick={notImplemented}
-                sx={{ width: 30, height: 30 }}
+                sx={{ width: 25, height: 25 }}
               ></ExploreOutlinedIcon>
             </MenuItem>
             <MenuItem onClick={signOutHandler}>
-              <LogoutIcon sx={{ width: 30, height: 30 }}></LogoutIcon>
+              <LogoutIcon sx={{ width: 25, height: 25 }}></LogoutIcon>
             </MenuItem>
           </>
         ) : null}
